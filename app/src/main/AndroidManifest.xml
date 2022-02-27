@@ -13,12 +13,15 @@
         android:theme="@style/Theme.DogGenerator">
         <activity
             android:name=".view.ViewerActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation"
             android:exported="true" />
         <activity
             android:name=".view.GeneratorActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation"
             android:exported="true" />
         <activity
             android:name=".view.MainActivity"
+            android:configChanges="keyboardHidden|screenSize|orientation"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

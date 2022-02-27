@@ -1,6 +1,7 @@
 package com.frankly.doggenerator.view
 
 
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.widget.Button
@@ -21,6 +22,22 @@ class ViewerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        for (str: String in cache.getLruCache()?.snapshot()?.keys!!) {
+            cache.getLruCache()?.get(str)?.let { list.add(it) }
+        }
+        list.reverse()
+        initUI()
+        if (cache.getLruCache()?.size() == 0)
+            showSnackBar("No recent data available.")
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        initUI()
+    }
+
+    private fun initUI() {
         setContentView(R.layout.activity_viewer)
 
         val recyclerView: RecyclerView = findViewById(R.id.recycleView)
@@ -30,9 +47,7 @@ class ViewerActivity : AppCompatActivity() {
             false
         )
         recyclerView.layoutManager = recycleLayoutManager
-        for (str: Bitmap in cache.getLruCache()?.snapshot()?.values!!) {
-            list.add(str)
-        }
+
         val dogAdapter = DogAdapter(list);
         recyclerView.adapter = dogAdapter
 
@@ -43,9 +58,6 @@ class ViewerActivity : AppCompatActivity() {
             recyclerView.adapter?.notifyDataSetChanged()
             clearDB()
         }
-
-        if (cache.getLruCache()?.size() == 0)
-            showSnackBar("No recent data available.")
     }
 
     private fun clearDB() {

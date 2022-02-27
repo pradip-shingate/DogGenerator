@@ -6,9 +6,14 @@ import android.util.LruCache
 class CacheLru(val size: Int) {
 
     private var memoryCache: LruCache<String, Bitmap>? = object : LruCache<String, Bitmap>(size) {
+        override fun entryRemoved(
+            evicted: Boolean,
+            key: String?,
+            oldValue: Bitmap?,
+            newValue: Bitmap?
+        ) {
+            super.entryRemoved(evicted, key, oldValue, newValue)
 
-        override fun sizeOf(key: String, bitmap: Bitmap): Int {
-            return bitmap.byteCount / 1024
         }
     }
 

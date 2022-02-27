@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.frankly.doggenerator.R
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.squareup.okhttp.Callback
@@ -22,15 +23,7 @@ import java.util.*
 object DogRepository : Observable() {
 
     private lateinit var currentDogBitmap: Bitmap
-
-
-    // Get max available VM memory, exceeding this amount will throw an
-    // OutOfMemory exception. Stored in kilobytes as LruCache takes an
-    // int in its constructor.
-    private val maxMemory = (Runtime.getRuntime().maxMemory() / 1024).toInt()
-
-    private val cacheLru: CacheLru = CacheLru(maxMemory / 8)
-
+    private val cacheLru: CacheLru = CacheLru(20)
 
     fun getCurrentDog(): Bitmap {
         return currentDogBitmap
@@ -43,7 +36,7 @@ object DogRepository : Observable() {
     fun getDogFromRepository(context: Context) {
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("https://dog.ceo/api/breeds/image/random")
+            .url(context.resources.getString(R.string.url))
             .build()
 
         client.newCall(request).enqueue(object : Callback {
@@ -69,7 +62,7 @@ object DogRepository : Observable() {
                 .asBitmap()
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
                 .load(it)
-                .override(300, 250)
+                .override(300, 225)
                 .into(object : CustomTarget<Bitmap>() {
                     override fun onResourceReady(
                         resource: Bitmap,
@@ -106,8 +99,8 @@ object DogRepository : Observable() {
 
     private fun putInCache(context: Context, url: String, bitmap: Bitmap) {
         Thread {
-            cacheLru.getLruCache()?.put(url, currentDogBitmap)
-            DataBaseHandler(context).putInDB(url, currentDogBitmap)
+            cacheLru.getLruCache()?.put(url, bitmap)
+            DataBaseHandler(context).putInDB(url, bitmap)
         }.start()
     }
 }

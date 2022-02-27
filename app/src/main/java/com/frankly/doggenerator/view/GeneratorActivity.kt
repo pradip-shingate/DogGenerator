@@ -1,5 +1,7 @@
 package com.frankly.doggenerator.view
 
+import android.content.res.Configuration
+import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
@@ -11,28 +13,24 @@ import com.frankly.doggenerator.models.DogRepository
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
 
-class GeneratorActivity : AppCompatActivity(), Observer {
+class GeneratorActivity : AppCompatActivity(), Observer, View.OnClickListener {
 
     private lateinit var btnGenerate: Button
+    private var bitmap: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_generator)
+        initUI()
         DogRepository.addObserver(this)
-        btnGenerate = findViewById(R.id.generate)
-        btnGenerate.setOnClickListener {
-            btnGenerate.isEnabled = false
-            findViewById<ProgressBar>(R.id.progressBar).visibility = View.VISIBLE
-            DogRepository.getDogFromRepository(this@GeneratorActivity)
-        }
     }
 
-    override fun update(o: Observable?, arg: Any?) {
-        if (o is DogRepository) {
+    override fun update(obsrvable: Observable?, arg: Any?) {
+        if (obsrvable is DogRepository) {
             runOnUiThread {
                 if (arg is Boolean && arg) {
                     val imageView: ImageView = findViewById(R.id.imageDog)
-                    imageView.setImageBitmap(o.getCurrentDog())
+                    bitmap = obsrvable.getCurrentDog()
+                    imageView.setImageBitmap(bitmap)
 
                 } else {
                     showSnackBar("Unable to load image.")
@@ -43,13 +41,37 @@ class GeneratorActivity : AppCompatActivity(), Observer {
         }
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        initUI()
+        bitmap?.let {
+            val imageView: ImageView = findViewById(R.id.imageDog)
+            imageView.setImageBitmap(it)
+        }
+    }
+
     private fun showSnackBar(message: String) {
         val snackBar = Snackbar.make(findViewById(R.id.rootView), message, Snackbar.LENGTH_LONG)
         snackBar.show()
     }
 
+
     override fun onDestroy() {
         super.onDestroy()
         DogRepository.deleteObserver(this)
+    }
+
+    override fun onClick(v: View?) {
+        if (v?.id == R.id.generate) {
+            btnGenerate.isEnabled = false
+            findViewById<ProgressBar>(R.id.progressBar).visibility = View.VISIBLE
+            DogRepository.getDogFromRepository(this@GeneratorActivity)
+        }
+    }
+
+    private fun initUI() {
+        setContentView(R.layout.activity_generator)
+        btnGenerate = findViewById(R.id.generate)
+        btnGenerate.setOnClickListener(this)
     }
 }
