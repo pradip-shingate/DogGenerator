@@ -57,6 +57,14 @@ class DataBaseHandler(context: Context) {
         cursor?.close()
     }
 
+    fun deleteEntry(key: String) {
+        val db = dbHelper?.writableDatabase
+        val whereClause = DogReaderDbHelper.FeedReaderContract.COLUMN_NAME_URL + "=?"
+        val whereArgs = arrayOf<String>(key)
+        val id = db?.delete(DogReaderDbHelper.FeedReaderContract.TABLE_NAME, whereClause, whereArgs)
+        db?.close()
+    }
+
     fun deleteData() {
         val db = dbHelper?.readableDatabase
         db?.delete(DogReaderDbHelper.FeedReaderContract.TABLE_NAME, null, null)

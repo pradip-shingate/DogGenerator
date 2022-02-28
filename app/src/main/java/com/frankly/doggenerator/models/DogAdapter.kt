@@ -17,7 +17,7 @@ class DogAdapter(private val dataSet: List<Bitmap>?) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.row_item, parent, false)
+            .inflate(R.layout.column_item, parent, false)
 
         return ViewHolder(view)
     }

@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.ProgressBar
 import androidx.appcompat.app.AppCompatActivity
 import com.frankly.doggenerator.R
+import com.frankly.doggenerator.models.DataBaseHandler
 import com.frankly.doggenerator.models.DogRepository
 import com.google.android.material.snackbar.Snackbar
 import java.util.*
@@ -32,6 +33,8 @@ class GeneratorActivity : AppCompatActivity(), Observer, View.OnClickListener {
                     bitmap = obsrvable.getCurrentDog()
                     imageView.setImageBitmap(bitmap)
 
+                } else if (arg is String) {
+                    DataBaseHandler(this@GeneratorActivity).deleteEntry(arg)
                 } else {
                     showSnackBar("Unable to load image.")
                 }

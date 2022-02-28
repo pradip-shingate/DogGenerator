@@ -19,11 +19,10 @@ import java.io.IOException
 import java.lang.reflect.Type
 import java.util.*
 
-
-object DogRepository : Observable() {
+object DogRepository : Observable(),Observer {
 
     private lateinit var currentDogBitmap: Bitmap
-    private val cacheLru: CacheLru = CacheLru(20)
+    private val cacheLru: CacheLru = CacheLru(20).also { it.addObserver(this@DogRepository) }
 
     fun getCurrentDog(): Bitmap {
         return currentDogBitmap
@@ -102,5 +101,12 @@ object DogRepository : Observable() {
             cacheLru.getLruCache()?.put(url, bitmap)
             DataBaseHandler(context).putInDB(url, bitmap)
         }.start()
+    }
+
+    override fun update(o: Observable?, arg: Any?) {
+        if(arg is String) {
+            setChanged()
+            notifyObservers(arg)
+        }
     }
 }
